@@ -284,4 +284,3 @@ BEGIN
     (p_acctsessiontime - Previous_Session_Time));
 END /
 DELIMITER ;
-
