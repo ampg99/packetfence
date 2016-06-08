@@ -285,30 +285,74 @@ BEGIN
 END /
 DELIMITER ;
 
--- Adding locationlog trigger to archive old DHCP location log on update or insert
+--
+-- Table structure for table `node_option82`
+--
 
-DROP TRIGGER IF EXISTS locationlog_insert_in_locationlog_archive_before_update_trigger;
+CREATE TABLE `node_option82` (
+  `node_option82_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `created_at` TIMESTAMP NOT NULL,
+  `mac` varchar(17) NOT NULL,
+  `option82_switch` varchar(17) NULL,
+  `switch_id` varchar(17) NULL,
+  `port` varchar(8) NOT NULL default '',
+  `vlan` varchar(255) default NULL,
+  `circuit_id_string` varchar(255) default NULL,
+  `module` varchar(255) default NULL,
+  `host` varchar(255) default NULL,
+  UNIQUE KEY mac (mac)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `node_option82_history`
+--
+
+CREATE TABLE `node_option82_history` (
+  `node_option82_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `created_at` TIMESTAMP NOT NULL,
+  `mac` varchar(17) NOT NULL,
+  `option82_switch` varchar(17) NULL,
+  `switch_id` varchar(17) NULL,
+  `port` varchar(8) NOT NULL default '',
+  `vlan` varchar(255) default NULL,
+  `circuit_id_string` varchar(255) default NULL,
+  `module` varchar(255) default NULL,
+  `host` varchar(255) default NULL,
+  INDEX (mac)
+) ENGINE=InnoDB;
+
+--
+-- Trigger to archive node_option82 entries to the history table after an update
+--
+
+DROP TRIGGER IF EXISTS node_option82_after_update_trigger;
 DELIMITER /
-CREATE TRIGGER locationlog_insert_in_locationlog_archive_before_update_trigger BEFORE UPDATE ON locationlog
+CREATE TRIGGER node_option82_after_update_trigger AFTER UPDATE ON node_option82
 FOR EACH ROW
 BEGIN
-  IF (NEW.connection_type IS NOT NULL AND NEW.connection_type = "DHCP") THEN
-    INSERT INTO locationlog_archive
-           ( mac, switch, port,
-             vlan, role, connection_type,
-             connection_sub_type, dot1x_username, ssid,
-             start_time, end_time, switch_ip,
-             switch_mac, stripped_user_name, realm,
-             session_id
+    INSERT INTO node_option82_history
+           (
+            created_at,
+            mac,
+            option82_switch,
+            switch_id,
+            port,
+            vlan,
+            circuit_id_string,
+            module,
+            host
            )
     VALUES
-           ( OLD.mac, OLD.switch, OLD.port,
-             OLD.vlan, OLD.role, OLD.connection_type,
-             OLD.connection_sub_type, OLD.dot1x_username, OLD.ssid,
-             OLD.start_time, OLD.end_time, OLD.switch_ip,
-             OLD.switch_mac, OLD.stripped_user_name, OLD.realm,
-             OLD.session_id
+           (
+            OLD.created_at,
+            OLD.mac,
+            OLD.option82_switch,
+            OLD.switch_id,
+            OLD.port,
+            OLD.vlan,
+            OLD.circuit_id_string,
+            OLD.module,
+            OLD.host
            );
-  END IF;
 END /
 DELIMITER ;
