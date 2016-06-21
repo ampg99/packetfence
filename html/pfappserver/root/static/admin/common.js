@@ -700,6 +700,7 @@ $(function () { // DOM ready
     /* Update any extended duration examples when loading section */
     $('body').on('section.loaded', function(event) {
         updateExtendedDurationExample($('.extended-duration'));
+        FingerbankSearch.setup();
     });
 
     /* Update extended duration widget when changing parameters of the duration */
@@ -741,6 +742,10 @@ $(function () { // DOM ready
           }
         });
       }
+    });
+
+    $('#section').on('show', '.modal', function(e) {
+      FingerbankSearch.setup();
     });
 
 });
